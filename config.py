@@ -4,7 +4,7 @@ import os
 load_dotenv()
 
 ALLOWED_ORIGINS = [
-    "http://localhost:5173",
+    # "http://localhost:5173",
     "https://zen-path-frontend.vercel.app"
 ]
 
