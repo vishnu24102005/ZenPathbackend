@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, Text
 from database import Base
 from datetime import datetime
 
@@ -26,3 +26,12 @@ class StressData(Base):
 
     timestamp = Column(DateTime, default=datetime.utcnow)
     prediction = Column(String)
+    
+class UserProfile(Base):
+    __tablename__ = "user_profile"
+
+    id = Column(Integer, primary_key=True)
+    email = Column(String, unique=True)
+    name = Column(String)
+    age = Column(Integer)
+    photo = Column(Text)

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from config import ALLOWED_ORIGINS
 from database import engine, SessionLocal
-from models import Base, UserData, StressData
+from models import Base, UserData, StressData, UserProfile
 from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
@@ -204,6 +204,86 @@ def get_history(email: str):
                 }
                 for r in records
             ]
+        }
+
+    finally:
+        db.close()
+        
+
+
+
+from typing import Optional
+
+class Profile(BaseModel):
+    email: str
+    name: str
+    age: int
+    photo: Optional[str] = None
+
+
+@app.post("/save-profile")
+async def save_profile(profile: Profile):
+    db = SessionLocal()
+
+    try:
+
+        user = db.query(UserProfile).filter(
+            UserProfile.email == profile.email
+        ).first()
+
+        if user:
+            user.name = profile.name
+            user.age = profile.age
+            user.photo = profile.photo
+        else:
+            user = UserProfile(
+                email=profile.email,
+                name=profile.name,
+                age=profile.age,
+                photo=profile.photo,
+            )
+            db.add(user)
+
+        db.commit()
+
+        return {
+            "success": True,
+            "message": "Profile Saved"
+        }
+
+    except Exception as e:
+        db.rollback()
+        return {
+            "success": False,
+            "message": str(e)
+        }
+
+    finally:
+        db.close()
+@app.get("/profile")
+async def get_profile(email: str):
+    db = SessionLocal()
+
+    try:
+
+        user = db.query(UserProfile).filter(
+            UserProfile.email == email
+        ).first()
+
+        if not user:
+            return {
+                "success": False,
+                "message": "Profile not found"
+            }
+
+        return {
+            "success": True,
+            "profile": {
+                "email": user.email,
+                "name": user.name,
+                "age": user.age,
+                "photo": user.photo
+            }
         }
 
     finally:
