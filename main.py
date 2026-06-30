@@ -8,6 +8,7 @@ from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 import joblib
 import numpy as np
+import time
 
 app = FastAPI()
 
@@ -24,13 +25,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+@app.get("/health")
+def health():
+    # time.sleep(60) 
+    return {"status": "ok"}
 
 @app.get("/")
 def home():
+    # time.sleep(60) 
     return {"message": "Backend Running"}
 
 @app.post("/signup")
 def signup(user: SignupRequest):
+    # time.sleep(60) 
     db = SessionLocal()
 
     try:
@@ -44,14 +51,14 @@ def signup(user: SignupRequest):
         db.refresh(new_user)
 
         return {
-            "message": "User Saved",
+            "message": "Account Created",
             "id": new_user.id
         }
 
     except IntegrityError:
         db.rollback()
         return {
-            "error": "Email already exists"
+            "message": "Email already exists pls Login"
         }
 
     finally:
